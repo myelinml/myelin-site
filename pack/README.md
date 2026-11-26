@@ -1,0 +1,1 @@
+Official logo pack (SVG + 2048 px PNG), stored as base64 so it can be committed as text. Run `./pack/restore.sh` to write `logos/myelin-logos.zip` and the PNGs. The Pages workflow does the same before publishing.
