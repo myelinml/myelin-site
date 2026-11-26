@@ -5,6 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# First-time setup: GitHub's GITHUB_TOKEN cannot enable Pages (POST /pages returns 403).
+# Enable it once at https://github.com/baiehclaca/myelin-site/settings/pages
+# Source: GitHub Actions. Then re-run this workflow, or push to main.
+
 permissions:
   contents: read
   pages: write
@@ -15,49 +19,23 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  enable:
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      contents: write
-    steps:
-      - name: Enable Pages if missing
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set +e
-          if gh api "repos/${GITHUB_REPOSITORY}/pages"; then
-            echo "Pages already configured"
-            exit 0
-          fi
-          if gh api --method POST "repos/${GITHUB_REPOSITORY}/pages" -f build_type=workflow; then
-            echo "Enabled Pages (workflow)"
-            exit 0
-          fi
-          if gh api --method POST "repos/${GITHUB_REPOSITORY}/pages" -f build_type=legacy -f source[branch]=main -f 'source[path]=/'; then
-            echo "Enabled Pages (main /)"
-            exit 0
-          fi
-          echo "Could not auto-enable Pages with GITHUB_TOKEN; deploy may still work after a one-time Pages enablement."
-          exit 0
-
   deploy:
-    needs: enable
-    if: always()
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Restore official logo pack
+      - name: Restore official logo pack and stage the site
         run: |
           set -euo pipefail
           base64 -d pack/myelin-logos.zip.b64 > logos/myelin-logos.zip
           python3 - <<'PY'
           import zipfile
           z = zipfile.ZipFile("logos/myelin-logos.zip")
-          z.testzip()
+          bad = z.testzip()
+          if bad:
+              raise SystemExit(f"corrupt zip member: {bad}")
           for info in z.infolist():
               if info.is_dir():
                   continue
@@ -66,14 +44,15 @@ jobs:
                   with z.open(info) as src, open(dest, "wb") as out:
                       out.write(src.read())
                   print("restored", dest)
-          print("zip ok", "logos/myelin-logos.zip")
+          print("zip ok logos/myelin-logos.zip")
           PY
+          mkdir -p published
+          cp index.html styles.css main.js favicon.svg .nojekyll published/
+          cp -a logos published/logos
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
         continue-on-error: true
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: published
       - id: deployment
         uses: actions/deploy-pages@v4
