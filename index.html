@@ -14,81 +14,21 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-<header class="nav">
-  <a href="#top" class="nav-logo" aria-label="myelin, back to top"><img src="logos/myelin-wordmark-light.svg" alt="myelin" height="26"></a>
-  <div class="nav-right">
-    <a class="nav-link" href="#marks">[↓] logos</a>
-    <span class="chip"><i class="led"></i>in development</span>
-  </div>
-</header>
-
-<nav class="rail" aria-label="sections">
-  <a href="#top" data-for="top"><i></i><span>myelin</span></a>
-  <a href="#idea" data-for="idea"><i></i><span>idea</span></a>
-  <a href="#sequence" data-for="sequence"><i></i><span>sequence</span></a>
-  <a href="#kernel" data-for="kernel"><i></i><span>kernel</span></a>
-  <a href="#file" data-for="file"><i></i><span>file</span></a>
-  <a href="#lock" data-for="lock"><i></i><span>lock</span></a>
-  <a href="#measured" data-for="measured"><i></i><span>measured</span></a>
-  <a href="#omyelin" data-for="omyelin"><i></i><span>omyelin</span></a>
-  <a href="#marks" data-for="marks"><i></i><span>logos</span></a>
-</nav>
-
 <main>
 
-<!-- 1 HERO -->
-<section class="s hero" id="top" data-sec>
-  <div class="hero-copy">
-    <p class="label rv">a minimal language and protocol for running local models</p>
-    <div class="dotword" id="dotword" role="img" aria-label="myelin"></div>
-    <h1 class="rv" style="--d:.9s">run local models.<br>nothing else.</h1>
-    <a class="scroll-cue rv" style="--d:1.2s" href="#idea"><span class="cue-dot"></span>scroll</a>
-  </div>
-  <div class="hero-obj">
-    <div class="float">
-      <div class="device" id="device">
-        <div class="device-screen">
-          <div class="tui-bar"><span>myelin</span><span>smollm2-360m · q4</span><span class="dots"><i></i><i></i><i></i></span></div>
-          <pre class="tui" data-type="hero" data-speed="7"><span class="p">$</span> ./build/smollm2-q4 \
-    -m smollm2-360m-q4.myl --chat \
-    -p "Explain in two sentences why the sky is blue."
-
-<span class="out">The sky is blue because it is a result of the scattering of light by the atmosphere…</span>
-
-<span class="st">prefill   40 tok    846.7 tok/s
-generate  96 tok    230.7 tok/s
-heap during run     +0 bytes</span></pre>
-        </div>
-        <div class="device-side"><div class="wheel"><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="knob"></div></div>
-      </div>
-    </div>
-    <p class="caption rv" style="--d:1.4s">real output, q4 build, x86 test box</p>
-  </div>
+<section class="s hero" id="top">
+  <div class="dotword" id="dotword" role="img" aria-label="myelin"></div>
+  <h1 class="rv" style="--d:1.1s">run local models. nothing else.</h1>
+  <a class="cue rv" style="--d:1.5s" href="#what" aria-label="scroll"><span></span></a>
 </section>
 
-<!-- 2 IDEA -->
-<section class="s idea" id="idea" data-sec>
-  <div class="idea-text">
-    <p class="label rv">the idea</p>
-    <h2 class="huge">
-      <span class="line rv">one model.</span>
-      <span class="line rv" style="--d:.15s">one machine.</span>
-      <span class="line rv" style="--d:.3s">one native<br class="br-m"> program.</span>
-    </h2>
-  </div>
-  <p class="idea-note rv" style="--d:.5s">Myelin compiles each model into a native binary for the machine it runs on. The compiler sees the whole model graph and removes the parts it does not use.</p>
+<section class="s what" id="what">
+  <p class="line rv">a minimal language and protocol<br>that turns a model into one native program<br>for the machine it runs on.</p>
 </section>
 
-<!-- 3 SEQUENCE (scroll-driven) -->
-<section class="seq" id="sequence" data-sec>
+<section class="seq" id="sequence">
   <div class="seq-stick">
-    <p class="label seq-label">[1] the run-time sequence · no discovery, no negotiation</p>
-    <div class="seq-stage">
-      <b class="seq-num" id="seqNum">01</b>
-      <h2 class="seq-word" id="seqWord">load</h2>
-      <p class="seq-cap" id="seqCap">one memory map of the .myl file.</p>
-    </div>
+    <h2 class="seq-word" id="seqWord">load</h2>
     <div class="axon" aria-hidden="true">
       <div class="axon-track">
         <span class="sheath"></span><span class="sheath"></span><span class="sheath"></span>
@@ -100,124 +40,38 @@ heap during run     +0 bytes</span></pre>
   </div>
 </section>
 
-<!-- 4 KERNEL -->
-<section class="s kernel dark" id="kernel" data-sec>
-  <div class="kernel-copy">
-    <p class="label rv">[2] the kernel language</p>
-    <h2 class="rv">a small language<br>that maps to<br>the hardware.</h2>
-    <p class="sub rv" style="--d:.2s">no garbage collector. no runtime library.<br>every kernel compiles to C and to Metal.</p>
-  </div>
-  <div class="term rv" style="--d:.15s">
-    <div class="term-head"><span>kernels/core.mk</span><span>MKL v1</span></div>
-<pre data-type="kernel" data-speed="14"><span class="k">kernel</span> <span class="f">rmsnorm</span>(y: <span class="k">out</span> f32[T, D], x: f32[T, D],
-               w: f32[D], T: i32) {
-    <span class="k">par for</span> t <span class="k">in</span> 0..T {
-        <span class="k">let</span> ss = 0.0;
-        <span class="k">for</span> i <span class="k">in</span> 0..D { ss += x[t, i] * x[t, i]; }
-        <span class="k">let</span> r = <span class="f">rsqrt</span>(ss / f32(D) + EPS);
-        <span class="k">for</span> i <span class="k">in</span> 0..D { y[t, i] = x[t, i] * r * w[i]; }
-    }
-}</pre>
-  </div>
+<section class="s measured dark" id="measured">
+  <div class="m-big rv"><b class="count" data-to="1.55" data-dec="2">1<i class="dp"></i>55</b><em>x</em></div>
+  <p class="m-cap rv" style="--d:.15s">faster prompt processing than llama.cpp.</p>
+  <p class="fine rv" style="--d:.3s">q8 · SmolLM2-360M-Instruct · x86, 8 threads, median of 7 · against llama.cpp's default AMX build</p>
 </section>
 
-<!-- 5 FILE -->
-<section class="s file" id="file" data-sec>
-  <div class="file-big rv" aria-hidden="true"><i class="dp"></i>myl</div>
-  <div class="file-copy">
-    <p class="label rv">[3] the file</p>
-    <h2 class="rv">a strict file.</h2>
-    <p class="sub rv" style="--d:.15s">weights, block scales and minimal metadata.<br>extra fields are not allowed.</p>
-    <div class="bits rv" style="--d:.3s" aria-label="2 to 8 bits">
-      <div class="bit" data-n="2"><span class="bdots"></span><em>q2</em></div>
-      <div class="bit" data-n="3"><span class="bdots"></span><em>q3</em></div>
-      <div class="bit" data-n="4"><span class="bdots"></span><em>q4</em></div>
-      <div class="bit" data-n="5"><span class="bdots"></span><em>q5</em></div>
-      <div class="bit" data-n="6"><span class="bdots"></span><em>q6</em></div>
-      <div class="bit" data-n="8"><span class="bdots"></span><em>q8</em></div>
-    </div>
-    <p class="fine rv" style="--d:.4s">2 to 8 bits, fixed at conversion. quality is measured as distance from a reference.</p>
-  </div>
-</section>
-
-<!-- 6 LOCK -->
-<section class="s lock" id="lock" data-sec>
-  <div class="lock-copy">
-    <p class="label rv">[4] the hardware path</p>
-    <h2 class="rv">measure once.<br>lock.</h2>
-    <p class="sub rv" style="--d:.15s">CPU for small ops, GPU for big matmuls.<br>the split is measured at first run, then locked.</p>
-  </div>
-  <ul class="hw" id="hw">
-    <li><b>x86-64</b><span>intel amx · avx-512 vnni</span></li>
-    <li><b>arm64</b><span>neon sdot</span></li>
-    <li><b>apple gpu</b><span>metal, split per phase</span></li>
-    <li class="hw-dim"><b>cuda</b><span>designed for, not built</span></li>
-    <li class="locked" aria-hidden="true"><span class="lock-pill">locked</span></li>
-  </ul>
-</section>
-
-<!-- 7 MEASURED -->
-<section class="s measured dark" id="measured" data-sec>
-  <p class="label rv">[5] measured</p>
-  <div class="m-big rv"><b class="count" data-to="1.55" data-dec="2">0<i class="dp"></i>00</b><em>x</em></div>
-  <p class="m-cap rv" style="--d:.15s">prompt processing, q8, against llama.cpp's default AMX build.</p>
-  <div class="m-row rv" style="--d:.3s">
-    <div><b class="count" data-to="1695" data-dec="0">0</b><span>tok/s prompt · apple m1 pro gpu · q4</span></div>
-    <div><b class="count" data-to="301" data-dec="0">0</b><span>tok/s decode · apple m1 pro cpu · q4</span></div>
-    <div><b>+0</b><span>bytes of heap while the model runs</span></div>
-  </div>
-  <p class="fine m-fine rv" style="--d:.4s">SmolLM2-360M-Instruct. x86 box: 8 threads, median of 7 rounds. Raw values in the repository's bench/results. Your machine and model will differ.</p>
-</section>
-
-<!-- 8 OMYELIN -->
-<section class="s omy" id="omyelin" data-sec>
-  <div class="omy-copy">
-    <img class="omy-icon rv" src="logos/omyelin-icon.svg" alt="" width="88" height="88">
-    <p class="label rv">[6] omyelin</p>
-    <h2 class="rv">the app around<br>the engine.</h2>
-    <p class="sub rv" style="--d:.15s">Myelin does the inference. Omyelin does everything around it, the way Ollama does for llama.cpp.</p>
-  </div>
-  <div class="term term-light rv" style="--d:.15s">
-    <div class="term-head"><span>~ omyelin</span><span>127.0.0.1:11434</span></div>
+<section class="s omy" id="omyelin">
+  <img class="omy-icon rv" src="logos/omyelin-icon.svg" alt="omyelin" width="96" height="96">
+  <h2 class="rv" style="--d:.1s">omyelin.</h2>
+  <p class="sub rv" style="--d:.2s">the app around the engine.</p>
+  <div class="term rv" style="--d:.3s">
 <pre data-type="omy" data-speed="16"><span class="p">$</span> omyelin pull qwen2.5:0.5b
 <span class="p">$</span> omyelin run qwen2.5:0.5b
-<span class="p">$</span> omyelin list
-<span class="p">$</span> omyelin app     <span class="c"># chat + model manager</span>
-<span class="p">$</span> omyelin serve   <span class="c"># ollama + openai apis</span></pre>
+<span class="p">$</span> omyelin app</pre>
   </div>
 </section>
 
-<section class="s facts" data-sec>
-  <ul class="fact-list">
-    <li class="rv"><span class="fi">01</span>your ollama models, too.<small>reads ~/.ollama/models. never writes, converts or deletes there.</small></li>
-    <li class="rv" style="--d:.1s"><span class="fi">02</span>the apis you already use.<small>/api/chat, /api/generate and /v1/chat/completions, streaming.</small></li>
-    <li class="rv" style="--d:.2s"><span class="fi">03</span>pure python.<small>standard library only, plus a C compiler for Myelin's plans.</small></li>
-  </ul>
-  <div class="runs rv" style="--d:.3s"><span class="label">runs today</span><span class="pill">llama 3.x</span><span class="pill">qwen 2.5</span><span class="pill">qwen 3</span><span class="pill pill-dim">more in progress</span></div>
+<section class="s marks" id="marks">
+  <h2 class="rv">logos.</h2>
+  <div class="marks-row">
+    <a class="mark rv" href="logos/myelin-wordmark-light.svg" download aria-label="download myelin wordmark svg"><span class="mark-art mark-w"><img src="logos/myelin-wordmark-light.svg" alt=""></span></a>
+    <a class="mark rv" style="--d:.08s" href="logos/myelin-icon.svg" download aria-label="download myelin icon svg"><span class="mark-art"><img src="logos/myelin-icon.svg" alt=""></span></a>
+    <a class="mark rv" style="--d:.16s" href="logos/omyelin-icon.svg" download aria-label="download omyelin icon svg"><span class="mark-art"><img src="logos/omyelin-icon.svg" alt=""></span></a>
+    <a class="mark rv" style="--d:.24s" href="logos/myelin-mark.svg" download aria-label="download axon mark svg"><span class="mark-art mark-ax"><img src="logos/myelin-mark.svg" alt=""></span></a>
+  </div>
+  <a class="btn rv" style="--d:.3s" href="logos/myelin-logos.zip" download>download all <span class="arr">↓</span></a>
 </section>
 
-<!-- 9 MARKS -->
-<section class="s marks" id="marks" data-sec>
-  <div class="marks-head">
-    <p class="label rv">[7] logos</p>
-    <h2 class="rv">the marks.</h2>
-    <a class="btn btn-ink rv" style="--d:.1s" href="logos/myelin-logos.zip" download>download all · svg + png <span class="arr">↓</span></a>
-  </div>
-  <div class="marks-grid">
-    <figure class="mark mark-word rv"><div class="mark-art"><img src="logos/myelin-wordmark-light.svg" alt="myelin wordmark"></div><figcaption>wordmark <a href="logos/myelin-wordmark-light.svg" download>svg</a><a href="logos/myelin-wordmark-dark.svg" download>svg dark</a></figcaption></figure>
-    <figure class="mark rv" style="--d:.08s"><div class="mark-art mark-pad"><img src="logos/myelin-icon.svg" alt="myelin icon"></div><figcaption>myelin icon <a href="logos/myelin-icon.svg" download>svg</a></figcaption></figure>
-    <figure class="mark rv" style="--d:.16s"><div class="mark-art mark-pad"><img src="logos/omyelin-icon.svg" alt="omyelin icon"></div><figcaption>omyelin icon <a href="logos/omyelin-icon.svg" download>svg</a></figcaption></figure>
-    <figure class="mark mark-axon rv" style="--d:.24s"><div class="mark-art"><img src="logos/myelin-mark.svg" alt="axon mark"></div><figcaption>axon mark <a href="logos/myelin-mark.svg" download>svg</a></figcaption></figure>
-    <figure class="mark mark-word mark-dk rv" style="--d:.32s"><div class="mark-art"><img src="logos/omyelin-wordmark-dark.svg" alt="omyelin wordmark"></div><figcaption>omyelin wordmark <a href="logos/omyelin-wordmark-dark.svg" download>svg</a><a href="logos/omyelin-wordmark-light.svg" download>svg light</a></figcaption></figure>
-  </div>
-</section>
-
-<!-- 10 CLOSER -->
-<section class="s closer dark" data-sec>
-  <img class="closer-icon" id="closerIcon" src="logos/myelin-icon.svg" alt="" width="220" height="220">
+<section class="s closer dark">
+  <img class="closer-icon" id="closerIcon" src="logos/myelin-icon.svg" alt="" width="200" height="200">
   <h2 class="rv">insulated, so the<br>signal moves faster.</h2>
-  <p class="sub rv" style="--d:.15s">myelin is a working name. in development, not published yet.</p>
-  <footer class="foot"><img src="logos/myelin-wordmark-dark.svg" alt="myelin" height="18"><span>by Teodor Walter Vido · 2026</span><a href="#top">back to top ↑</a></footer>
+  <footer class="foot">myelin is a working name · in development · by Teodor Walter Vido, 2026</footer>
 </section>
 
 </main>
