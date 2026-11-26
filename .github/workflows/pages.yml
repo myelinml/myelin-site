@@ -1,0 +1,62 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  enable:
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      contents: write
+    steps:
+      - name: Enable Pages if missing
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if gh api "repos/${GITHUB_REPOSITORY}/pages" >/tmp/pages.json 2>/tmp/pages.err; then
+            echo "Pages already configured"
+            cat /tmp/pages.json
+            exit 0
+          fi
+          echo "GET /pages failed:"
+          cat /tmp/pages.err || true
+          # Prefer the Actions workflow build. Fall back to publishing main from the site root.
+          if gh api --method POST "repos/${GITHUB_REPOSITORY}/pages" \
+               -f build_type=workflow; then
+            echo "Enabled Pages (workflow)"
+          elif gh api --method POST "repos/${GITHUB_REPOSITORY}/pages" \
+               -f build_type=legacy -f source[branch]=main -f 'source[path]=/'; then
+            echo "Enabled Pages (main /)"
+          else
+            echo "Could not auto-enable Pages; the deploy job may still succeed or may need a one-time settings change."
+            exit 0
+          fi
+
+  deploy:
+    needs: enable
+    if: always()
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - id: deployment
+        uses: actions/deploy-pages@v4
